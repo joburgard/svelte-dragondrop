@@ -1,0 +1,7 @@
+*
+!.gitignore
+!package.json
+!LICENSE.txt
+!README.md
+!/src/
+!/src/**/*
