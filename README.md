@@ -17,7 +17,13 @@ npm i -D svelte-dragondrop
 ```
 
 ```svelte
-<Dropzone bind:items={verticalItemsLeft} direction="vertical" dragHandle="drag-handle" let:items let:dnd>
+<Dropzone
+	bind:items={draggableItems}
+	direction="vertical"
+	dragHandle="drag-handle"
+	let:items
+	let:dnd
+	>
 	<div use:dnd>
 		{#each items as item (item.id)}
 			<div class="flex gap-x-2 items-center">
