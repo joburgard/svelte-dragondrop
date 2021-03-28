@@ -1,7 +1,11 @@
 *
 !.gitignore
+!.prettierrc
 !package.json
 !LICENSE.txt
 !README.md
+!CHANGELOG.md
 !/src/
 !/src/**/*
+!/types/
+!/types/**/*
