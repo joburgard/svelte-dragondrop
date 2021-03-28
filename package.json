@@ -1,5 +1,6 @@
 {
 	"name": "svelte-dragondrop",
+	"version": "0.1.0",
 	"description": "Drag and drop library for Svelte",
 	"keywords": [
 		"svelte",
@@ -12,29 +13,17 @@
 	],
 	"author": "Jo Burgard",
 	"repository": "github:joburgard/svelte-dragondrop",
-	"version": "0.0.1",
 	"main": "src/index.js",
+	"svelte": "src/index.js",
+	"types": "types/index.d.ts",
 	"files": [
-		"src/**/*"
+		"src/**/*",
+		"types/**/*"
 	],
-	"scripts": {
-		"dev": "vite",
-		"build": "vite build",
-		"serve": "vite preview"
-	},
+	"license": "Unlicense",
 	"devDependencies": {
-		"@svitejs/vite-plugin-svelte": "^0.11.1",
-		"@tailwindcss/forms": "^0.2.1",
-		"@tailwindcss/typography": "^0.4.0",
-		"autoprefixer": "^10.2.5",
-		"postcss": "^8.2.8",
-		"postcss-load-config": "^3.0.1",
 		"prettier": "^2.2.1",
-		"svelte": "^3.35.0",
-		"svelte-preprocess": "^4.6.9",
-		"tailwindcss": "^2.0.3",
-		"typescript": "^4.2.3",
-		"vite": "^2.1.0"
-	},
-	"license": "Unlicense"
+		"sveld": "^0.7.1",
+		"svelte": "^3.35.0"
+	}
 }
