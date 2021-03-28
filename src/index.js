@@ -1,3 +1,3 @@
-import Dragzone from './Dragzone.svelte';
+import Dropzone from './Dropzone.svelte';
 
-export default Dragzone;
+export default Dropzone;

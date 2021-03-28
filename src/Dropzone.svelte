@@ -1,9 +1,9 @@
 <script context="module">
 	import { writable } from 'svelte/store';
 
-	let dragzonesCurrentId = 0;
+	let dropzonesCurrentId = 0;
 
-	const dragzones = writable({});
+	const dropzones = writable({});
 	const draggedItems = writable([]);
 	const startZone = writable(null);
 	const targetZone = writable(null);
@@ -12,12 +12,12 @@
 	const targetIndex = writable(null);
 
 	function registerDragzone(dragzone) {
-		dragzones.update((current) => {
-			current[dragzonesCurrentId] = dragzone;
+		dropzones.update((current) => {
+			current[dropzonesCurrentId] = dragzone;
 			return current;
 		});
-		dragzonesCurrentId += 1;
-		return '' + (dragzonesCurrentId - 1);
+		dropzonesCurrentId += 1;
+		return '' + (dropzonesCurrentId - 1);
 	}
 </script>
 
@@ -25,24 +25,27 @@
 	import { tick } from 'svelte';
 
 	/**
-	 * @type {Array}
+	 * @slot {{ items: Array<any>; dnd: (element: HTMLElement) => { destroy } }}
 	 */
-	export let items;
-	export let direction = 'vertical';
 
-	let dragzone;
+	/** @type {Array<any>} */
+	export let items;
+	/** @type {'vertical'|'horizontal'} */
+	export let direction = 'vertical';
+	/** @type {string} */
+	export let dragHandle;
+
+	let dropzone;
 	let itemsReset;
 
-	let dragzoneId;
+	let dropzoneId;
 
 	let pointerX;
 	let pointerY;
 	let referenceX;
 	let referenceY;
 
-	/**
-	 * @type {HTMLElement}
-	 */
+	/** @type {HTMLElement} */
 	let dragVisual;
 	let dragVisualOffsetX;
 	let dragVisualOffsetY;
@@ -50,9 +53,7 @@
 	let placeholderStylesReset;
 
 	// *** loop() ***
-	/**
-	 * @type {HTMLElement}
-	 */
+	/** @type {HTMLElement} */
 	let elementAtConsiderPosition;
 	let loopRequestedAnimationFrame;
 	let dragVisualRect;
@@ -61,15 +62,25 @@
 	let elementAtPointerCenterX;
 	let elementAtPointerCenterY;
 
-	$: items && dragzone && setup();
+	$: items && dropzone && setup();
 
 	function triggerSvelteUpdate() {
 		items = items;
 	}
 
+	function remove(index) {
+		items.splice(index, 1);
+		triggerSvelteUpdate();
+	}
+
 	function setup() {
-		dragzone.childNodes.forEach((child) => {
-			child.style.cursor = 'grab';
+		if (dragHandle) {
+			dropzone
+				.querySelectorAll(`[${dragHandle}]`)
+				.forEach((element) => (element.style.cursor = 'grab'));
+		}
+		dropzone.childNodes.forEach((child) => {
+			if (!dragHandle) child.style.cursor = 'grab';
 			child.addEventListener('mousedown', startDrag);
 		});
 	}
@@ -82,12 +93,17 @@
 		dragVisual = element.cloneNode(true);
 		dragVisual.style.width = `${element.getBoundingClientRect().width}px`;
 		dragVisual.style.height = `${element.getBoundingClientRect().height}px`;
-		dragVisual.style.cursor = 'grabbing';
 		dragVisual.style.position = 'absolute';
 		dragVisual.style.top = '0';
 		dragVisual.style.left = '0';
 		dragVisual.style.zIndex = '9999';
 		dragVisual.style.userSelect = 'none';
+		dragVisual.style.cursor = 'grabbing';
+		if (dragHandle) {
+			dragVisual
+				.querySelectorAll(`[${dragHandle}]`)
+				.forEach((element) => (element.style.cursor = ''));
+		}
 		document.body.appendChild(dragVisual);
 	}
 
@@ -121,9 +137,7 @@
 	}
 
 	function stylePlaceholder() {
-		/**
-		 * @type {HTMLElement}
-		 */
+		/** @type {HTMLElement} */
 		let placeholder = getPlaceholderElement();
 		if (!placeholderStylesReset) {
 			placeholderStylesReset = placeholder.style.cssText;
@@ -139,15 +153,20 @@
 	 * @param {MouseEvent} event
 	 */
 	function startDrag(event) {
+		// support for dragHandle
+		if (dragHandle && !event.target.matches(`[${dragHandle}], [${dragHandle}] *`)) {
+			return;
+		}
+
 		// prepare the data
 		{
 			updatePointerPosition(event);
 			itemsReset = [...items];
 			$startIndex = getIndexOfElement(event.currentTarget);
 			$targetIndex = $startIndex;
-			$startZone = $dragzones[dragzoneId];
-			$targetZone = $dragzones[dragzoneId];
-			$placeholderZone = $dragzones[dragzoneId];
+			$startZone = $dropzones[dropzoneId];
+			$targetZone = $dropzones[dropzoneId];
+			$placeholderZone = $dropzones[dropzoneId];
 			$draggedItems = items[$startIndex];
 			[referenceX, referenceY] = getCenterOfElement(event.currentTarget);
 		}
@@ -158,6 +177,9 @@
 			dragVisualOffsetX = pointerX + window.pageXOffset - event.currentTarget.offsetLeft;
 			dragVisualOffsetY = pointerY + window.pageYOffset - event.currentTarget.offsetTop;
 		}
+
+		// prevent text selection
+		document.body.style.userSelect = 'none';
 
 		stylePlaceholder();
 
@@ -170,6 +192,7 @@
 		unstylePlaceholder();
 		dragVisual.remove();
 		placeholderStylesReset = null;
+		document.body.style.userSelect = '';
 		cancelAnimationFrame(loopRequestedAnimationFrame);
 		window.removeEventListener('mousemove', updatePointerPosition);
 		window.removeEventListener('mouseup', stopDrag);
@@ -191,7 +214,7 @@
 		{
 			dragVisualRect = dragVisual.getBoundingClientRect();
 			// use center of directional side of element rectangle as the consider point
-			if (direction === 'vertical') {
+			if ($targetZone.direction === 'vertical') {
 				considerX = dragVisualRect.x + Math.round(dragVisualRect.width / 2);
 				if (pointerY <= referenceY) {
 					// going up
@@ -243,7 +266,7 @@
 				elementAtConsiderPosition = elementAtConsiderPosition.parentElement;
 			}
 
-			$targetZone = $dragzones[elementAtConsiderPosition.parentElement.dataset.dragzoneId];
+			$targetZone = $dropzones[elementAtConsiderPosition.parentElement.dataset.dragzoneId];
 
 			[elementAtPointerCenterX, elementAtPointerCenterY] = getCenterOfElement(
 				elementAtConsiderPosition
@@ -256,13 +279,13 @@
 			}
 			// center point decides if placed before or after
 			else if (
-				(direction === 'vertical' && pointerY <= referenceY) ||
-				(direction === 'horizontal' && pointerX <= referenceX)
+				($targetZone.direction === 'vertical' && pointerY <= referenceY) ||
+				($targetZone.direction === 'horizontal' && pointerX <= referenceX)
 			) {
 				// going up or left
 				if (
-					(direction === 'vertical' && considerY <= elementAtPointerCenterY) ||
-					(direction === 'horizontal' && considerX <= elementAtPointerCenterX)
+					($targetZone.direction === 'vertical' && considerY <= elementAtPointerCenterY) ||
+					($targetZone.direction === 'horizontal' && considerX <= elementAtPointerCenterX)
 				) {
 					// place before
 					$targetIndex = getIndexOfElement(elementAtConsiderPosition);
@@ -273,8 +296,8 @@
 			} else {
 				// going down or right
 				if (
-					(direction === 'vertical' && considerY <= elementAtPointerCenterY) ||
-					(direction === 'horizontal' && considerX <= elementAtPointerCenterX)
+					($targetZone.direction === 'vertical' && considerY <= elementAtPointerCenterY) ||
+					($targetZone.direction === 'horizontal' && considerX <= elementAtPointerCenterX)
 				) {
 					// place before
 					$targetIndex = getIndexOfElement(elementAtConsiderPosition) - 1;
@@ -289,9 +312,9 @@
 		// move placeholder to new dragzone
 		else if (
 			elementAtConsiderPosition.matches('[data-dragzone-id]') &&
-			$dragzones[elementAtConsiderPosition.dataset.dragzoneId].items.length === 0
+			$dropzones[elementAtConsiderPosition.dataset.dragzoneId].items.length === 0
 		) {
-			$targetZone = $dragzones[elementAtConsiderPosition.dataset.dragzoneId];
+			$targetZone = $dropzones[elementAtConsiderPosition.dataset.dragzoneId];
 			$targetIndex = 0;
 			placePreview();
 		} else {
@@ -330,21 +353,22 @@
 	 * @param {HTMLElement} element
 	 */
 	function dnd(element) {
-		dragzone = element;
+		dropzone = element;
 
-		dragzoneId = registerDragzone({
-			dragzone,
+		dropzoneId = registerDragzone({
+			dragzone: dropzone,
 			items,
-			reset: () => (items = itemsReset),
-			triggerSvelteUpdate
+			direction,
+			triggerSvelteUpdate,
+			reset: () => (items = itemsReset)
 		});
 
-		dragzone.dataset.dragzoneId = dragzoneId;
+		dropzone.dataset.dragzoneId = dropzoneId;
 
 		return {
 			destroy: () => {
-				if (!dragzone) return;
-				dragzone.childNodes.forEach((child) => {
+				if (!dropzone) return;
+				dropzone.childNodes.forEach((child) => {
 					child.removeEventListener('mousedown', startDrag);
 				});
 				window.removeEventListener('mousemove', updatePointerPosition);
@@ -354,4 +378,4 @@
 	}
 </script>
 
-<slot {items} {dnd} />
+<slot {items} {dnd} {remove} />
