@@ -1,6 +1,6 @@
 # Svelte Dragondrop 🐉
 
-Drag and drop library for Svelte that aims to be elegant _and_ powerful.
+The drag and drop library for Svelte that aims to be elegant _and_ powerful.
 
 Currently not stable. (Wait for Version 1.0)
 
@@ -10,26 +10,23 @@ npm i -D svelte-dragondrop
 
 ## Usage
 
-```html
-<script>
-	import Dropzone from 'svelte-dragondrop';
-</script>
-```
-
 ```svelte
+<script>
+  import Dropzone from 'svelte-dragondrop';
+
+  let draggableItems = [
+    // ...
+  ];
+</script>
+
 <Dropzone
   bind:items={draggableItems}
-  direction="vertical"
-  dragHandle="drag-handle"
   let:items
   let:dnd
   >
   <div use:dnd>
     {#each items as item (item.id)}
-      <div class="flex gap-x-2 items-center">
-        <div class="w-12 h-12 bg-gray-200" drag-handle />
-        <div>{item.name}</div>
-      </div>
+      <div class="p-8">{item.name}</div>
     {/each}
   </div>
 </Dropzone>
@@ -50,10 +47,10 @@ An array of the items that you want to use for drag and drop.
 If you want to use drag handles you can set this to a string. You have to set this as an html attribute in your markup.
 
 ```svelte
-<Dropzone dragHandle="drag-handle" ...>
-  ...
+<Dropzone dragHandle="drag-handle">
+  <!-- ... -->
   <div drag-handle />
-  ...
+  <!-- ... -->
 </Dropzone>
 ```
 
