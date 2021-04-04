@@ -18,20 +18,20 @@ npm i -D svelte-dragondrop
 
 ```svelte
 <Dropzone
-	bind:items={draggableItems}
-	direction="vertical"
-	dragHandle="drag-handle"
-	let:items
-	let:dnd
-	>
-	<div use:dnd>
-		{#each items as item (item.id)}
-			<div class="flex gap-x-2 items-center">
-				<div class="w-12 h-12 bg-gray-200" drag-handle />
-				<div>{item.name}</div>
-			</div>
-		{/each}
-	</div>
+  bind:items={draggableItems}
+  direction="vertical"
+  dragHandle="drag-handle"
+  let:items
+  let:dnd
+  >
+  <div use:dnd>
+    {#each items as item (item.id)}
+      <div class="flex gap-x-2 items-center">
+        <div class="w-12 h-12 bg-gray-200" drag-handle />
+        <div>{item.name}</div>
+      </div>
+    {/each}
+  </div>
 </Dropzone>
 ```
 
@@ -51,9 +51,9 @@ If you want to use drag handles you can set this to a string. You have to set th
 
 ```svelte
 <Dropzone dragHandle="drag-handle" ...>
-	...
-	<div drag-handle />
-	...
+  ...
+  <div drag-handle />
+  ...
 </Dropzone>
 ```
 
@@ -73,15 +73,15 @@ A function that you can call with the `index` of the element to remove it from t
 
 ```svelte
 <Dropzone let:remove ...>
-	...
-	{#each items as item, index (item.id)}
-		...
-		<div on:click={() => remove(index)}>
-			Remove
-		</div>
-		...
-	{/each}
-	...
+  ...
+  {#each items as item, index (item.id)}
+    ...
+    <div on:click={() => remove(index)}>
+      Remove
+    </div>
+    ...
+  {/each}
+  ...
 </Dropzone>
 ```
 
