@@ -5,7 +5,7 @@ export interface DropzoneProps {
   items?: Array<any>;
 
   /**
-   * @default "vertical"
+   * @default 'vertical'
    */
   direction?: "vertical" | "horizontal";
 
@@ -15,5 +15,11 @@ export interface DropzoneProps {
 export default class Dropzone extends SvelteComponentTyped<
   DropzoneProps,
   {},
-  { default: { items: Array<any>; dnd: (element: HTMLElement) => { destroy } } }
+  {
+    default: {
+      items: Array<any>;
+      dnd: (element: HTMLElement) => { destroy };
+      remove: (index: number) => void;
+    };
+  }
 > {}

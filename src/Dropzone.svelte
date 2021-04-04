@@ -25,7 +25,7 @@
 	import { tick } from 'svelte';
 
 	/**
-	 * @slot {{ items: Array<any>; dnd: (element: HTMLElement) => { destroy } }}
+	 * @slot {{ items: Array<any>; dnd: (element: HTMLElement) => { destroy }; remove: (index: number) => void }}
 	 */
 
 	/** @type {Array<any>} */
@@ -68,6 +68,10 @@
 		items = items;
 	}
 
+	/**
+	 * Removes the item at the specified index
+	 * @param {number} index
+	 */
 	function remove(index) {
 		items.splice(index, 1);
 		triggerSvelteUpdate();
