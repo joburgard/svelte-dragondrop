@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
 - Simplify example in readme file
 - Change indentation to spaces in readme file
+
+### Added
+
+- Add type information for the `remove` function that is passed to the slot
 
 ## [0.1.0] - 2021-03-28
 
