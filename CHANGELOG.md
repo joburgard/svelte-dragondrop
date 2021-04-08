@@ -7,14 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add type information for the `remove` function that is passed to the slot
+- Copy on dragstart functionality. Does a shallow copy by default and changes the id property. A custom copy function can be supplied.
+
 ### Changed
 
 - Simplify example in readme file
 - Change indentation to spaces in readme file
-
-### Added
-
-- Add type information for the `remove` function that is passed to the slot
 
 ## [0.1.0] - 2021-03-28
 

@@ -2,6 +2,7 @@
 	import { writable } from 'svelte/store';
 
 	let dropzonesCurrentId = 0;
+	let copyId = 0;
 
 	const dropzones = writable({});
 	const draggedItems = writable([]);
@@ -34,6 +35,13 @@
 	export let direction = 'vertical';
 	/** @type {string} */
 	export let dragHandle;
+	/** @type {boolean} */
+	export let copy;
+	/** @type {(item: any) => newItem: any} */
+	export let copyFunction = (item) => {
+		copyId += 1;
+		return Object.assign({}, item, { id: `copy_${copyId}` });
+	};
 
 	let dropzone;
 	let itemsReset;
@@ -166,12 +174,23 @@
 		{
 			updatePointerPosition(event);
 			itemsReset = [...items];
-			$startIndex = getIndexOfElement(event.currentTarget);
-			$targetIndex = $startIndex;
-			$startZone = $dropzones[dropzoneId];
-			$targetZone = $dropzones[dropzoneId];
-			$placeholderZone = $dropzones[dropzoneId];
-			$draggedItems = items[$startIndex];
+
+			if (!copy) {
+				$startIndex = getIndexOfElement(event.currentTarget);
+				$targetIndex = $startIndex;
+				$startZone = $dropzones[dropzoneId];
+				$targetZone = $dropzones[dropzoneId];
+				$placeholderZone = $dropzones[dropzoneId];
+				$draggedItems = items[$startIndex];
+			} else {
+				$startIndex = null;
+				$targetIndex = null;
+				$startZone = null;
+				$targetZone = null;
+				$placeholderZone = null;
+				$draggedItems = copyFunction(items[getIndexOfElement(event.currentTarget)]);
+			}
+
 			[referenceX, referenceY] = getCenterOfElement(event.currentTarget);
 		}
 
@@ -185,7 +204,7 @@
 		// prevent text selection
 		document.body.style.userSelect = 'none';
 
-		stylePlaceholder();
+		!copy && stylePlaceholder();
 
 		window.addEventListener('mousemove', updatePointerPosition);
 		window.addEventListener('mouseup', stopDrag);
@@ -215,7 +234,7 @@
 		}
 
 		// set consider point
-		{
+		if ($targetZone) {
 			dragVisualRect = dragVisual.getBoundingClientRect();
 			// use center of directional side of element rectangle as the consider point
 			if ($targetZone.direction === 'vertical') {
@@ -238,6 +257,9 @@
 					considerX = dragVisualRect.x + dragVisualRect.width;
 				}
 			}
+		} else {
+			considerX = pointerX;
+			considerY = pointerY;
 		}
 
 		// get element at the consider position
@@ -246,10 +268,11 @@
 			elementAtConsiderPosition = document.elementFromPoint(considerX, considerY);
 			// use pointer position if it isnt over placeholderZone
 			if (
-				!elementAtConsiderPosition ||
-				!elementAtConsiderPosition?.matches(
-					`[data-dragzone-id="${$startZone.dragzone.dataset.dragzoneId}"], [data-dragzone-id="${$startZone.dragzone.dataset.dragzoneId}"] *`
-				)
+				$placeholderZone &&
+				(!elementAtConsiderPosition ||
+					!elementAtConsiderPosition?.matches(
+						`[data-dragzone-id="${$placeholderZone.dragzone.dataset.dragzoneId}"], [data-dragzone-id="${$placeholderZone.dragzone.dataset.dragzoneId}"] *`
+					))
 			) {
 				elementAtConsiderPosition = document.elementFromPoint(pointerX, pointerY);
 				considerX = pointerX;
@@ -259,7 +282,10 @@
 		}
 
 		// skip if position is not over a dragzone or it is the placeholder
-		if (!elementAtConsiderPosition || elementAtConsiderPosition === getPlaceholderElement()) {
+		if (
+			!elementAtConsiderPosition ||
+			($placeholderZone && elementAtConsiderPosition === getPlaceholderElement())
+		) {
 			return;
 		}
 
@@ -328,15 +354,27 @@
 
 	function placePreview() {
 		// skip if it is already in the same place
-		if ($placeholderZone === $targetZone && $startIndex === $targetIndex) {
+		if (
+			$placeholderZone !== null &&
+			$targetZone !== null &&
+			$placeholderZone === $targetZone &&
+			$startIndex === $targetIndex
+		) {
 			return;
 		}
 
-		// move placeholder to new position
-		$targetZone.items.splice($targetIndex, 0, ...$placeholderZone.items.splice($startIndex, 1));
+		// copied but not yet placed
+		if ($placeholderZone === null) {
+			$targetZone.items.splice($targetIndex, 0, $draggedItems);
+			$startZone = $targetZone;
+			$startIndex = $targetIndex;
+		} else {
+			// move placeholder to new position
+			$targetZone.items.splice($targetIndex, 0, ...$placeholderZone.items.splice($startIndex, 1));
+		}
 
 		// this is necessary for svelte to know the value changed
-		$placeholderZone.triggerSvelteUpdate();
+		$placeholderZone?.triggerSvelteUpdate();
 		$targetZone.triggerSvelteUpdate();
 
 		tick().then(() => {
