@@ -37,7 +37,7 @@
 	export let dragHandle;
 	/** @type {boolean} */
 	export let copy;
-	/** @type {(item: any) => newItem: any} */
+	/** @type {(item: any) => any} */
 	export let copyFunction = (item) => {
 		copyId += 1;
 		return Object.assign({}, item, { id: `copy_${copyId}` });
