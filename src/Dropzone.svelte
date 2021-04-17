@@ -31,22 +31,33 @@
 
 	/** @type {Array<any>} */
 	export let items;
+
 	/** @type {'vertical'|'horizontal'} */
 	export let direction = 'vertical';
+
 	/** @type {string} */
 	export let dragHandle;
+
 	/** @type {boolean} */
 	export let copy;
+
 	/** @type {(item: any) => any} */
 	export let copyFunction = (item) => {
 		copyId += 1;
 		return Object.assign({}, item, { id: `copy_${copyId}` });
 	};
 
-	let dropzone;
-	let itemsReset;
+	/** @type {string} */
+	export let type = 'default';
 
+	/** @typedef {('all'|'none'|'self'|'sameType'|'differentType'|'others')} AllowsFrom */
+	/** @type {AllowsFrom|AllowsFrom[]|string[]} */
+	export let allowsFrom = 'sameType';
+
+	let dropzone;
 	let dropzoneId;
+
+	let itemsReset;
 
 	let pointerX;
 	let pointerY;
@@ -162,6 +173,41 @@
 	}
 
 	/**
+	 * @param {string} allowsFrom
+	 */
+	function checkAllowsFrom(allowsFrom) {
+		switch (allowsFrom) {
+			case 'all':
+				return true;
+			case 'self':
+				if ($targetZone === $startZone) return true;
+				return false;
+			case 'sameType':
+				if ($targetZone.type === $startZone.type) return true;
+				return false;
+			case 'differentType':
+				if ($targetZone.type !== $startZone.type) return true;
+				return false;
+			case 'others':
+				if ($targetZone !== $startZone) return true;
+				return false;
+			default:
+				return false;
+		}
+	}
+
+	function isAllowedToDrop() {
+		if (typeof $targetZone.allowsFrom === 'string') {
+			return checkAllowsFrom($targetZone.allowsFrom);
+		} else if (Array.isArray($targetZone.allowsFrom)) {
+			for (const ruleOrType of $targetZone.allowsFrom) {
+				if (checkAllowsFrom(ruleOrType) || ruleOrType === $startZone.type) return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * @param {MouseEvent} event
 	 */
 	function startDrag(event) {
@@ -185,7 +231,7 @@
 			} else {
 				$startIndex = null;
 				$targetIndex = null;
-				$startZone = null;
+				$startZone = $dropzones[dropzoneId];
 				$targetZone = null;
 				$placeholderZone = null;
 				$draggedItems = copyFunction(items[getIndexOfElement(event.currentTarget)]);
@@ -212,7 +258,7 @@
 	}
 
 	function stopDrag() {
-		unstylePlaceholder();
+		$placeholderZone && unstylePlaceholder();
 		dragVisual.remove();
 		placeholderStylesReset = null;
 		document.body.style.userSelect = '';
@@ -298,6 +344,11 @@
 
 			$targetZone = $dropzones[elementAtConsiderPosition.parentElement.dataset.dragzoneId];
 
+			// skip if not allowed to drop
+			if (!isAllowedToDrop()) {
+				return;
+			}
+
 			[elementAtPointerCenterX, elementAtPointerCenterY] = getCenterOfElement(
 				elementAtConsiderPosition
 			);
@@ -345,6 +396,12 @@
 			$dropzones[elementAtConsiderPosition.dataset.dragzoneId].items.length === 0
 		) {
 			$targetZone = $dropzones[elementAtConsiderPosition.dataset.dragzoneId];
+
+			// skip if not allowed to drop
+			if (!isAllowedToDrop()) {
+				return;
+			}
+
 			$targetIndex = 0;
 			placePreview();
 		} else {
@@ -366,7 +423,6 @@
 		// copied but not yet placed
 		if ($placeholderZone === null) {
 			$targetZone.items.splice($targetIndex, 0, $draggedItems);
-			$startZone = $targetZone;
 			$startIndex = $targetIndex;
 		} else {
 			// move placeholder to new position
@@ -401,6 +457,8 @@
 			dragzone: dropzone,
 			items,
 			direction,
+			type,
+			allowsFrom,
 			triggerSvelteUpdate,
 			reset: () => (items = itemsReset)
 		});

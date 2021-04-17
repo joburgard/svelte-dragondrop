@@ -1,6 +1,14 @@
 /// <reference types="svelte" />
 import { SvelteComponentTyped } from "svelte";
 
+export type AllowsFrom =
+  | "all"
+  | "none"
+  | "self"
+  | "sameType"
+  | "differentType"
+  | "others";
+
 export interface DropzoneProps {
   items?: Array<any>;
 
@@ -17,6 +25,16 @@ export interface DropzoneProps {
    * @default (item) => { copyId += 1; return Object.assign({}, item, { id: `copy_${copyId}` }); }
    */
   copyFunction?: (item: any) => any;
+
+  /**
+   * @default 'default'
+   */
+  type?: string;
+
+  /**
+   * @default 'sameType'
+   */
+  allowsFrom?: AllowsFrom | AllowsFrom[] | string[];
 }
 
 export default class Dropzone extends SvelteComponentTyped<
