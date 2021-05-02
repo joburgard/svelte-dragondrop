@@ -12,9 +12,9 @@
 	const startIndex = writable(null);
 	const targetIndex = writable(null);
 
-	function registerDragzone(dragzone) {
+	function registerDropzone(dropzone) {
 		dropzones.update((current) => {
-			current[dropzonesCurrentId] = dragzone;
+			current[dropzonesCurrentId] = dropzone;
 			return current;
 		});
 		dropzonesCurrentId += 1;
@@ -156,7 +156,7 @@
 	}
 
 	function getPlaceholderElement() {
-		return $placeholderZone.dragzone.children[$targetIndex];
+		return $placeholderZone.element.children[$targetIndex];
 	}
 
 	function stylePlaceholder() {
@@ -318,7 +318,7 @@
 				$placeholderZone &&
 				(!elementAtConsiderPosition ||
 					!elementAtConsiderPosition?.matches(
-						`[data-dragzone-id="${$placeholderZone.dragzone.dataset.dragzoneId}"], [data-dragzone-id="${$placeholderZone.dragzone.dataset.dragzoneId}"] *`
+						`[data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"], [data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"] *`
 					))
 			) {
 				elementAtConsiderPosition = document.elementFromPoint(pointerX, pointerY);
@@ -328,7 +328,7 @@
 			dragVisual.style.pointerEvents = '';
 		}
 
-		// skip if position is not over a dragzone or it is the placeholder
+		// skip if position is not over a dropzone or it is the placeholder
 		if (
 			!elementAtConsiderPosition ||
 			($placeholderZone && elementAtConsiderPosition === getPlaceholderElement())
@@ -337,13 +337,13 @@
 		}
 
 		// place placeholder before or after elementAtPointerPosition
-		if (elementAtConsiderPosition.matches('[data-dragzone-id] *')) {
-			// get the direct child of the dragzone
-			while (!elementAtConsiderPosition.parentElement.matches('[data-dragzone-id]')) {
+		if (elementAtConsiderPosition.matches('[data-dropzone-id] *')) {
+			// get the direct child of the dropzone
+			while (!elementAtConsiderPosition.parentElement.matches('[data-dropzone-id]')) {
 				elementAtConsiderPosition = elementAtConsiderPosition.parentElement;
 			}
 
-			$targetZone = $dropzones[elementAtConsiderPosition.parentElement.dataset.dragzoneId];
+			$targetZone = $dropzones[elementAtConsiderPosition.parentElement.dataset.dropzoneId];
 
 			// skip if not allowed to drop
 			if (!isAllowedToDrop()) {
@@ -354,7 +354,7 @@
 				elementAtConsiderPosition
 			);
 
-			// if the placeholder moves to a new dragzone it will be placed
+			// if the placeholder moves to a new dropzone it will be placed
 			// at the position of the element it hovers over
 			if ($placeholderZone !== $targetZone) {
 				$targetIndex = getIndexOfElement(elementAtConsiderPosition);
@@ -391,12 +391,12 @@
 
 			placePreview();
 		}
-		// move placeholder to new dragzone
+		// move placeholder to new dropzone
 		else if (
-			elementAtConsiderPosition.matches('[data-dragzone-id]') &&
-			$dropzones[elementAtConsiderPosition.dataset.dragzoneId].items.length === 0
+			elementAtConsiderPosition.matches('[data-dropzone-id]') &&
+			$dropzones[elementAtConsiderPosition.dataset.dropzoneId].items.length === 0
 		) {
-			$targetZone = $dropzones[elementAtConsiderPosition.dataset.dragzoneId];
+			$targetZone = $dropzones[elementAtConsiderPosition.dataset.dropzoneId];
 
 			// skip if not allowed to drop
 			if (!isAllowedToDrop()) {
@@ -435,12 +435,12 @@
 		$targetZone.triggerSvelteUpdate();
 
 		tick().then(() => {
-			const movedToNewDragzone = $targetZone !== $placeholderZone;
+			const movedToNewDropzone = $targetZone !== $placeholderZone;
 
 			$placeholderZone = $targetZone;
 			$startIndex = $targetIndex;
 
-			if (movedToNewDragzone) {
+			if (movedToNewDropzone) {
 				placeholderStylesReset = '';
 				stylePlaceholder();
 			}
@@ -454,8 +454,8 @@
 	function dnd(element) {
 		dropzone = element;
 
-		dropzoneId = registerDragzone({
-			dragzone: dropzone,
+		dropzoneId = registerDropzone({
+			element,
 			items,
 			direction,
 			type,
@@ -464,7 +464,7 @@
 			reset: () => (items = itemsReset)
 		});
 
-		dropzone.dataset.dragzoneId = dropzoneId;
+		dropzone.dataset.dropzoneId = dropzoneId;
 
 		return {
 			destroy: () => {
