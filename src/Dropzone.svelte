@@ -10,6 +10,7 @@
 	const targetZone = writable(null);
 	const placeholderZone = writable(null);
 	const startIndex = writable(null);
+	const placeholderIndex = writable(null);
 	const targetIndex = writable(null);
 
 	function registerDropzone(dropzone) {
@@ -23,7 +24,7 @@
 </script>
 
 <script>
-	import { tick } from 'svelte';
+	import { createEventDispatcher, tick } from 'svelte';
 
 	/**
 	 * @slot {{ items: Array<any>; dnd: (element: HTMLElement) => { destroy }; remove: (index: number) => void }}
@@ -80,6 +81,8 @@
 	let considerY;
 	let elementAtPointerCenterX;
 	let elementAtPointerCenterY;
+
+	const dispatch = createEventDispatcher();
 
 	$: items && dropzone && setup();
 
@@ -224,13 +227,15 @@
 
 			if (!copy) {
 				$startIndex = getIndexOfElement(event.currentTarget);
+				$placeholderIndex = $startIndex;
 				$targetIndex = $startIndex;
 				$startZone = $dropzones[dropzoneId];
 				$targetZone = $dropzones[dropzoneId];
 				$placeholderZone = $dropzones[dropzoneId];
-				$draggedItems = items[$startIndex];
+				$draggedItems = items[$placeholderIndex];
 			} else {
 				$startIndex = null;
+				$placeholderIndex = null;
 				$targetIndex = null;
 				$startZone = $dropzones[dropzoneId];
 				$targetZone = null;
@@ -266,6 +271,13 @@
 		cancelAnimationFrame(loopRequestedAnimationFrame);
 		window.removeEventListener('mousemove', updatePointerPosition);
 		window.removeEventListener('mouseup', stopDrag);
+		dispatch('drop', {
+			startZone: $startZone,
+			startIndex: $startIndex,
+			targetZone: $targetZone,
+			targetIndex: $targetIndex,
+			draggedItems: $draggedItems
+		});
 	}
 
 	function loop() {
@@ -413,7 +425,7 @@
 			$placeholderZone !== null &&
 			$targetZone !== null &&
 			$placeholderZone === $targetZone &&
-			$startIndex === $targetIndex
+			$placeholderIndex === $targetIndex
 		) {
 			return;
 		}
@@ -421,10 +433,14 @@
 		// copied but not yet placed
 		if ($placeholderZone === null) {
 			$targetZone.items.splice($targetIndex, 0, $draggedItems);
-			$startIndex = $targetIndex;
+			$placeholderIndex = $targetIndex;
 		} else {
 			// move placeholder to new position
-			$targetZone.items.splice($targetIndex, 0, ...$placeholderZone.items.splice($startIndex, 1));
+			$targetZone.items.splice(
+				$targetIndex,
+				0,
+				...$placeholderZone.items.splice($placeholderIndex, 1)
+			);
 		}
 
 		// this is necessary for svelte to know the value changed
@@ -435,7 +451,7 @@
 			const movedToNewDropzone = $targetZone !== $placeholderZone;
 
 			$placeholderZone = $targetZone;
-			$startIndex = $targetIndex;
+			$placeholderIndex = $targetIndex;
 
 			if (movedToNewDropzone) {
 				placeholderStylesReset = '';
@@ -448,7 +464,7 @@
 	/**
 	 * @param {HTMLElement} element
 	 */
-	function dnd(element) {
+	function dnd(element, params) {
 		dropzone = element;
 
 		dropzoneId = registerDropzone({
@@ -464,6 +480,9 @@
 		dropzone.dataset.dropzoneId = dropzoneId;
 
 		return {
+			update: () => {
+				setup();
+			},
 			destroy: () => {
 				if (!dropzone) return;
 				dropzone.childNodes.forEach((child) => {

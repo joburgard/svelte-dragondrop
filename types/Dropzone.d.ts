@@ -39,7 +39,7 @@ export interface DropzoneProps {
 
 export default class Dropzone extends SvelteComponentTyped<
   DropzoneProps,
-  {},
+  { drop: CustomEvent<any> },
   {
     default: {
       items: Array<any>;

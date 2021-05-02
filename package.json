@@ -21,6 +21,9 @@
 		"types/**/*"
 	],
 	"license": "Unlicense",
+	"scripts": {
+		"types": "pnpx sveld"
+	},
 	"devDependencies": {
 		"prettier": "^2.2.1",
 		"sveld": "^0.7.1",

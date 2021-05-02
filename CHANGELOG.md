@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add type information for the `remove` function that is passed to the slot
 - Copy on dragstart functionality. Does a shallow copy by default and changes the id property. A custom copy function can be supplied.
 - Zone `type`s and `allowsFrom` property - this lets you control where things can be sorted and dropped.
+- `drop` event. This can be used to track changes and implement undo/redo functionality.
 
 ### Changed
 
@@ -21,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- The `startDrag` click stops the propagation. This makes it possible to have dropzones in dropzones.
+- The `startDrag` event stops the propagation. This makes it possible to have dropzones in dropzones.
 
 ## [0.1.0] - 2021-03-28
 
