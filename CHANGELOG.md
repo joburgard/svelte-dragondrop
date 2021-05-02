@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Simplify example in readme file
 - Change indentation to spaces in readme file
+- Improved behavior when dragging into another dropzone. If not dragged over another item it will default to appending at the end.
+
+### Fixed
+
+- The `startDrag` click stops the propagation. This makes it possible to have dropzones in dropzones.
 
 ## [0.1.0] - 2021-03-28
 
