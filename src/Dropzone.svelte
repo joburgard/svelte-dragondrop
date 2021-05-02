@@ -211,6 +211,7 @@
 	 * @param {MouseEvent} event
 	 */
 	function startDrag(event) {
+		event.stopPropagation();
 		// support for dragHandle
 		if (dragHandle && !event.target.matches(`[${dragHandle}], [${dragHandle}] *`)) {
 			return;
