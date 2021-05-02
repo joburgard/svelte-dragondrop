@@ -392,18 +392,15 @@
 			placePreview();
 		}
 		// move placeholder to new dropzone
-		else if (
-			elementAtConsiderPosition.matches('[data-dropzone-id]') &&
-			$dropzones[elementAtConsiderPosition.dataset.dropzoneId].items.length === 0
-		) {
+		else if (elementAtConsiderPosition.matches('[data-dropzone-id]')) {
 			$targetZone = $dropzones[elementAtConsiderPosition.dataset.dropzoneId];
 
-			// skip if not allowed to drop
-			if (!isAllowedToDrop()) {
+			// skip if it is already in that dropzone or not allowed to drop
+			if ($placeholderZone === $targetZone || !isAllowedToDrop()) {
 				return;
 			}
 
-			$targetIndex = 0;
+			$targetIndex = $dropzones[elementAtConsiderPosition.dataset.dropzoneId].items.length;
 			placePreview();
 		} else {
 			return;
