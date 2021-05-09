@@ -100,6 +100,9 @@
 	}
 
 	function setup() {
+		// this is needed for the case that a new array is passed to the component
+		$dropzones[dropzoneId].items = items;
+
 		if (dragHandle) {
 			dropzone
 				.querySelectorAll(`[${dragHandle}]`)
@@ -412,7 +415,7 @@
 				return;
 			}
 
-			$targetIndex = $dropzones[elementAtConsiderPosition.dataset.dropzoneId].items.length;
+			$targetIndex = $dropzones[elementAtConsiderPosition.dataset.dropzoneId].items.length - 1;
 			placePreview();
 		} else {
 			return;
