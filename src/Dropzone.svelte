@@ -407,7 +407,7 @@
 
 			placePreview();
 		}
-		// move placeholder to new dropzone
+		// considered Position is over a container but not over an item
 		else if (elementAtConsiderPosition.matches('[data-dropzone-id]')) {
 			$targetZone = $dropzones[elementAtConsiderPosition.dataset.dropzoneId];
 
@@ -416,6 +416,7 @@
 				return;
 			}
 
+			// we want to place the item at the end of the container
 			$targetIndex = $dropzones[elementAtConsiderPosition.dataset.dropzoneId].items.length;
 			placePreview();
 		} else {
