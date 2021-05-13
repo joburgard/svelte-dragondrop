@@ -21,6 +21,7 @@
 		dropzonesCurrentId += 1;
 		return '' + (dropzonesCurrentId - 1);
 	}
+
 </script>
 
 <script>
@@ -415,7 +416,7 @@
 				return;
 			}
 
-			$targetIndex = $dropzones[elementAtConsiderPosition.dataset.dropzoneId].items.length - 1;
+			$targetIndex = $dropzones[elementAtConsiderPosition.dataset.dropzoneId].items.length;
 			placePreview();
 		} else {
 			return;
@@ -496,6 +497,7 @@
 			}
 		};
 	}
+
 </script>
 
 <slot {items} {dnd} {remove} />
