@@ -253,8 +253,10 @@
 		// create visual representation that follows the pointer
 		{
 			createDragVisual(event.currentTarget);
-			dragVisualOffsetX = pointerX + window.pageXOffset - event.currentTarget.offsetLeft;
-			dragVisualOffsetY = pointerY + window.pageYOffset - event.currentTarget.offsetTop;
+			dragVisualOffsetX =
+				event.currentTarget.getBoundingClientRect().x - pointerX + window.pageXOffset;
+			dragVisualOffsetY =
+				event.currentTarget.getBoundingClientRect().y - pointerY + window.pageYOffset;
 		}
 
 		// prevent text selection
@@ -290,8 +292,8 @@
 		{
 			// prettier-ignore
 			dragVisual.style.transform = `translate3d(
-					${pointerX + window.pageXOffset - dragVisualOffsetX}px,
-					${pointerY + window.pageYOffset - dragVisualOffsetY}px,
+					${pointerX + window.pageXOffset + dragVisualOffsetX}px,
+					${pointerY + window.pageYOffset + dragVisualOffsetY}px,
 					0
 				)`;
 		}
