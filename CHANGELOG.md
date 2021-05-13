@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The `startDrag` event stops the propagation. This makes it possible to have dropzones in dropzones.
+- The dragged preview now has the correct offset in scrolled containers.
 
 ## [0.1.0] - 2021-03-28
 
