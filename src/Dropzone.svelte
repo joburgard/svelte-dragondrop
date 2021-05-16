@@ -310,14 +310,15 @@
 			if ($targetZone) {
 				if (direction === 'vertical') {
 					if (
-						pointerY - $targetZone.element.getBoundingClientRect().y <= autoScrollEdgeDistance &&
+						Math.abs(pointerY - $targetZone.element.getBoundingClientRect().y) <=
+							autoScrollEdgeDistance &&
 						$targetZone.element.scrollTop !== 0
 					) {
 						// top edge
 						$targetZone.element.scrollBy(0, -autoScrollSpeed);
 						isScrolling = true;
 					} else if (
-						$targetZone.element.getBoundingClientRect().bottom - pointerY <=
+						Math.abs($targetZone.element.getBoundingClientRect().bottom - pointerY) <=
 							autoScrollEdgeDistance &&
 						$targetZone.element.offsetHeight + $targetZone.element.scrollTop !==
 							$targetZone.element.scrollHeight
@@ -328,14 +329,15 @@
 					}
 				} else {
 					if (
-						pointerX - $targetZone.element.getBoundingClientRect().x <= autoScrollEdgeDistance &&
+						Math.abs(pointerX - $targetZone.element.getBoundingClientRect().x) <=
+							autoScrollEdgeDistance &&
 						$targetZone.element.scrollRight !== 0
 					) {
 						// left edge
 						$targetZone.element.scrollBy(-autoScrollSpeed, 0);
 						isScrolling = true;
 					} else if (
-						$targetZone.element.getBoundingClientRect().right - pointerX <=
+						Math.abs($targetZone.element.getBoundingClientRect().right - pointerX) <=
 							autoScrollEdgeDistance &&
 						$targetZone.element.offsetWidth + $targetZone.element.scrollRight !==
 							$targetZone.element.scrollWidth
