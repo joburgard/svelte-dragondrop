@@ -327,6 +327,23 @@
 						isScrolling = true;
 					}
 				} else {
+					if (
+						pointerX - $targetZone.element.getBoundingClientRect().x <= autoScrollEdgeDistance &&
+						$targetZone.element.scrollRight !== 0
+					) {
+						// left edge
+						$targetZone.element.scrollBy(-autoScrollSpeed, 0);
+						isScrolling = true;
+					} else if (
+						$targetZone.element.getBoundingClientRect().right - pointerX <=
+							autoScrollEdgeDistance &&
+						$targetZone.element.offsetWidth + $targetZone.element.scrollRight !==
+							$targetZone.element.scrollWidth
+					) {
+						// right edge
+						$targetZone.element.scrollBy(autoScrollSpeed, 0);
+						isScrolling = true;
+					}
 				}
 			}
 		}
