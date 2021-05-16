@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Copy on dragstart functionality. Does a shallow copy by default and changes the id property. A custom copy function can be supplied.
 - Zone `type`s and `allowsFrom` property - this lets you control where things can be sorted and dropped.
 - `drop` event. This can be used to track changes and implement undo/redo functionality.
+- Autoscrolling: while dragging the dropzone will scroll if the pointer is close to the edge.
+  - This can be controlled by the `autoScrollSpeed` and `autoScrollEdgeDistance` properties.
 
 ### Changed
 

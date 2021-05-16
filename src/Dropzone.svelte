@@ -56,6 +56,11 @@
 	/** @type {AllowsFrom|AllowsFrom[]|string[]} */
 	export let allowsFrom = 'sameType';
 
+	/** @type {number} */
+	export let autoScrollSpeed = 5;
+	/** @type {number} */
+	export let autoScrollEdgeDistance = 50;
+
 	let dropzone;
 	let dropzoneId;
 
@@ -65,6 +70,7 @@
 	let pointerY;
 	let referenceX;
 	let referenceY;
+	let isScrolling = true;
 
 	/** @type {HTMLElement} */
 	let dragVisual;
@@ -288,6 +294,7 @@
 
 	function loop() {
 		loopRequestedAnimationFrame = requestAnimationFrame(loop);
+
 		// let the dragVisual follow the pointer
 		{
 			// prettier-ignore
@@ -296,6 +303,38 @@
 					${pointerY + window.pageYOffset + dragVisualOffsetY}px,
 					0
 				)`;
+		}
+
+		// scroll the dropzone if the mouse is near the edge | autoScroll
+		{
+			if ($targetZone) {
+				if (direction === 'vertical') {
+					if (
+						pointerY - $targetZone.element.getBoundingClientRect().y <= autoScrollEdgeDistance &&
+						$targetZone.element.scrollTop !== 0
+					) {
+						// top edge
+						$targetZone.element.scrollBy(0, -autoScrollSpeed);
+						isScrolling = true;
+					} else if (
+						$targetZone.element.getBoundingClientRect().bottom - pointerY <=
+							autoScrollEdgeDistance &&
+						$targetZone.element.offsetHeight + $targetZone.element.scrollTop !==
+							$targetZone.element.scrollHeight
+					) {
+						// bootom edge
+						$targetZone.element.scrollBy(0, autoScrollSpeed);
+						isScrolling = true;
+					}
+				} else {
+				}
+			}
+		}
+
+		// skip if mouse did not move
+		if (isScrolling) {
+			isScrolling = false;
+			return;
 		}
 
 		// set consider point
@@ -336,7 +375,8 @@
 				$placeholderZone &&
 				(!elementAtConsiderPosition ||
 					!elementAtConsiderPosition?.matches(
-						`[data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"], [data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"] *`
+						`[data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"],
+						 [data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"] *`
 					))
 			) {
 				elementAtConsiderPosition = document.elementFromPoint(pointerX, pointerY);
