@@ -169,7 +169,7 @@
 	}
 
 	function getPlaceholderElement() {
-		return $placeholderZone.element.children[$targetIndex];
+		return $placeholderZone.element.children[$placeholderIndex];
 	}
 
 	function stylePlaceholder() {
@@ -350,7 +350,7 @@
 			}
 		}
 
-		// skip if mouse did not move
+		// skip if the dropzone is currently scrolling (this prevents back and forth placement)
 		if (isScrolling) {
 			isScrolling = false;
 			return;
@@ -396,7 +396,11 @@
 					!elementAtConsiderPosition?.matches(
 						`[data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"],
 						 [data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"] *`
-					))
+					)) &&
+				!document.elementFromPoint(pointerX, pointerY)?.matches(
+					`[data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"],
+						 [data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"] *`
+				)
 			) {
 				elementAtConsiderPosition = document.elementFromPoint(pointerX, pointerY);
 				considerX = pointerX;
@@ -408,7 +412,7 @@
 		// skip if position is not over a dropzone or it is the placeholder
 		if (
 			!elementAtConsiderPosition ||
-			($placeholderZone && elementAtConsiderPosition === getPlaceholderElement())
+			getPlaceholderElement()?.contains(elementAtConsiderPosition)
 		) {
 			return;
 		}
