@@ -169,7 +169,7 @@
 	}
 
 	function getPlaceholderElement() {
-		return $placeholderZone.element.children[$placeholderIndex];
+		return $placeholderZone?.element.children[$placeholderIndex];
 	}
 
 	function stylePlaceholder() {
