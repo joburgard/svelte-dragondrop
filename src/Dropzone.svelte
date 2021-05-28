@@ -259,10 +259,8 @@
 		// create visual representation that follows the pointer
 		{
 			createDragVisual(event.currentTarget);
-			dragVisualOffsetX =
-				event.currentTarget.getBoundingClientRect().x - pointerX + window.pageXOffset;
-			dragVisualOffsetY =
-				event.currentTarget.getBoundingClientRect().y - pointerY + window.pageYOffset;
+			dragVisualOffsetX = event.currentTarget.getBoundingClientRect().x - pointerX;
+			dragVisualOffsetY = event.currentTarget.getBoundingClientRect().y - pointerY;
 		}
 
 		// prevent text selection
