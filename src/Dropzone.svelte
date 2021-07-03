@@ -21,7 +21,6 @@
 		dropzonesCurrentId += 1;
 		return '' + (dropzonesCurrentId - 1);
 	}
-
 </script>
 
 <script>
@@ -321,7 +320,7 @@
 						$targetZone.element.offsetHeight + $targetZone.element.scrollTop !==
 							$targetZone.element.scrollHeight
 					) {
-						// bootom edge
+						// bottom edge
 						$targetZone.element.scrollBy(0, autoScrollSpeed);
 						isScrolling = true;
 					}
@@ -329,7 +328,7 @@
 					if (
 						Math.abs(pointerX - $targetZone.element.getBoundingClientRect().x) <=
 							autoScrollEdgeDistance &&
-						$targetZone.element.scrollRight !== 0
+						$targetZone.element.scrollLeft !== 0
 					) {
 						// left edge
 						$targetZone.element.scrollBy(-autoScrollSpeed, 0);
@@ -337,7 +336,7 @@
 					} else if (
 						Math.abs($targetZone.element.getBoundingClientRect().right - pointerX) <=
 							autoScrollEdgeDistance &&
-						$targetZone.element.offsetWidth + $targetZone.element.scrollRight !==
+						$targetZone.element.offsetWidth + $targetZone.element.scrollLeft !==
 							$targetZone.element.scrollWidth
 					) {
 						// right edge
@@ -357,9 +356,9 @@
 		// set consider point
 		if ($targetZone) {
 			dragVisualRect = dragVisual.getBoundingClientRect();
-			// use center of directional side of element rectangle as the consider point
+			// use pointer position as one input and bounding box as second input
 			if ($targetZone.direction === 'vertical') {
-				considerX = dragVisualRect.x + Math.round(dragVisualRect.width / 2);
+				considerX = pointerX;
 				if (pointerY <= referenceY) {
 					// going up
 					considerY = dragVisualRect.y;
@@ -369,7 +368,7 @@
 				}
 			} else {
 				// horizontal
-				considerY = dragVisualRect.y + Math.round(dragVisualRect.height / 2);
+				considerY = pointerY;
 				if (pointerX <= referenceX) {
 					// going left
 					considerX = dragVisualRect.x;
@@ -387,18 +386,27 @@
 		{
 			dragVisual.style.pointerEvents = 'none';
 			elementAtConsiderPosition = document.elementFromPoint(considerX, considerY);
-			// use pointer position if it isnt over placeholderZone
+			// use pointer position if
+			// it is not over placeholderZone
+			// or no element is found at consider position
 			if (
-				$placeholderZone &&
-				(!elementAtConsiderPosition ||
+				($placeholderZone &&
 					!elementAtConsiderPosition?.matches(
 						`[data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"],
 						 [data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"] *`
-					)) &&
-				!document.elementFromPoint(pointerX, pointerY)?.matches(
-					`[data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"],
+					) &&
+					!document.elementFromPoint(pointerX, pointerY)?.matches(
+						`[data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"],
 						 [data-dropzone-id="${$placeholderZone.element.dataset.dropzoneId}"] *`
-				)
+					)) ||
+				(!elementAtConsiderPosition?.matches(
+					`[data-dropzone-id],
+					 [data-dropzone-id] *`
+				) &&
+					document.elementFromPoint(pointerX, pointerY)?.matches(
+						`[data-dropzone-id],
+						 [data-dropzone-id] *`
+					))
 			) {
 				elementAtConsiderPosition = document.elementFromPoint(pointerX, pointerY);
 				considerX = pointerX;
@@ -561,7 +569,6 @@
 			}
 		};
 	}
-
 </script>
 
 <slot {items} {dnd} {remove} />
